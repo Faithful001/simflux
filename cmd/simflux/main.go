@@ -1,1 +1,5 @@
-package simflux
+package main
+
+func main() {
+
+}
