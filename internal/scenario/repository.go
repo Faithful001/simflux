@@ -40,12 +40,12 @@ func (r *ScenarioRepository) GetAllScenarios(ctx context.Context) ([]Scenario, e
 	return scenarios, nil
 }
 func (r *ScenarioRepository) GetScenarioByID(ctx context.Context, id int) (Scenario, error) {
-	var scenarios Scenario
-	if err := r.db.WithContext(ctx).Where("id = ?", id).First(&scenarios).Error; err != nil {
+	var scenario Scenario
+	if err := r.db.WithContext(ctx).Where("id = ?", id).First(&scenario).Error; err != nil {
 		return Scenario{}, err
 	}
 
-	return scenarios, nil
+	return scenario, nil
 }
 func (r *ScenarioRepository) UpdateScenario(ctx context.Context, scenario Scenario) error {
 	if err := r.db.WithContext(ctx).Find(scenario).Error; err != nil {
