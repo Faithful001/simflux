@@ -2,7 +2,7 @@ package dto
 
 import "encoding/json"
 
-type CreatePaymentDto struct {
+type CreatePayment struct {
 	Provider  string `json:"provider" binding:"required"`
 	Reference string `json:"reference" binding:"required"`
 	Status    string `json:"status" binding:"required"`

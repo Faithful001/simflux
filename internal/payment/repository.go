@@ -8,14 +8,15 @@ import (
 )
 
 type IPaymentRepository interface {
-	Create(ctx context.Context, req dto.CreatePaymentDto) error
+	Create(ctx context.Context, req dto.CreatePaymentRequest) error
 	Get(ctx context.Context) ([]Payment, error)
 	GetByID(ctx context.Context, id int) (Payment, error)
 	GetByReference(ctx context.Context, reference string) (Payment, error)
 	GetByStatus(ctx context.Context, status string) ([]Payment, error)
 	GetByProvider(ctx context.Context, provider string) ([]Payment, error)
-	Update(ctx context.Context, req dto.UpdatePaymentDto) error
+	Update(ctx context.Context, req dto.UpdatePaymentRequest) error
 	Delete(ctx context.Context, id int) error
+	Clear(ctx context.Context) error
 }
 
 type PaymentRepository struct {
@@ -28,7 +29,8 @@ func NewPaymentRepository(db *gorm.DB) IPaymentRepository {
 	}
 }
 
-func (r *PaymentRepository) Create(ctx context.Context, req dto.CreatePaymentDto) error {
+
+func (r *PaymentRepository) Create(ctx context.Context, req dto.CreatePaymentRequest) error {
 	payment := Payment{
         Provider:  req.Provider,
         Reference: req.Reference,
@@ -78,7 +80,7 @@ func (r *PaymentRepository) GetByProvider(ctx context.Context, provider string) 
 	return payments, err
 }
 
-func (r *PaymentRepository) Update(ctx context.Context, req dto.UpdatePaymentDto) error {
+func (r *PaymentRepository) Update(ctx context.Context, req dto.UpdatePaymentRequest) error {
     return r.db.WithContext(ctx).
         Model(&Payment{}).
         Where("reference = ?", req.Reference).
@@ -91,4 +93,12 @@ func (r *PaymentRepository) Update(ctx context.Context, req dto.UpdatePaymentDto
 
 func (r *PaymentRepository) Delete(ctx context.Context, id int) error {
 	return r.db.WithContext(ctx).Where("id = ?", id).Delete(&Payment{}).Error
+}
+
+func (r *PaymentRepository) Clear(ctx context.Context) error {
+    return r.db.
+        WithContext(ctx).
+        Session(&gorm.Session{AllowGlobalUpdate: true}).
+        Delete(&Payment{}).
+        Error
 }
