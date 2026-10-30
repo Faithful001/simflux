@@ -1,6 +1,6 @@
 package payment
 
-import "github.com/Faithful001/simflux.git/internal/server/payment/dto"
+import "github.com/Faithful001/simflux.git/internal/payment/dto"
 
 type PaymentService struct{}
 

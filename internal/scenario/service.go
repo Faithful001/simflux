@@ -2,38 +2,38 @@ package scenario
 
 import "context"
 
-type ScenarioService interface {
-    CreateScenario(ctx context.Context, scenario Scenario) error
-    GetAllScenarios(ctx context.Context) ([]Scenario, error)
-    GetScenarioByID(ctx context.Context, id int) (Scenario, error)
-    UpdateScenario(ctx context.Context, scenario Scenario) error
-    DeleteScenario(ctx context.Context, id int) error
+type IScenarioService interface {
+    Create(ctx context.Context, scenario Scenario) error
+    Get(ctx context.Context) ([]Scenario, error)
+    GetByID(ctx context.Context, id int) (Scenario, error)
+    Update(ctx context.Context, scenario Scenario) error
+    Delete(ctx context.Context, id int) error
 }
 
-type scenarioService struct {
+type ScenarioService struct {
     repo IScenarioRepository
 }
 
-func NewScenarioService(repo IScenarioRepository) ScenarioService {
-    return &scenarioService{repo: repo}
+func NewScenarioService(repo IScenarioRepository) IScenarioService {
+    return &ScenarioService{repo: repo}
 }
 
-func (s *scenarioService) CreateScenario(ctx context.Context, scenario Scenario) error {
+func (s *ScenarioService) Create(ctx context.Context, scenario Scenario) error {
     return s.repo.CreateScenario(ctx, scenario)
 }
 
-func (s *scenarioService) GetAllScenarios(ctx context.Context) ([]Scenario, error) {
+func (s *ScenarioService) Get(ctx context.Context) ([]Scenario, error) {
     return s.repo.GetAllScenarios(ctx)
 }
 
-func (s *scenarioService) GetScenarioByID(ctx context.Context, id int) (Scenario, error) {
+func (s *ScenarioService) GetByID(ctx context.Context, id int) (Scenario, error) {
     return s.repo.GetScenarioByID(ctx, id)
 }
 
-func (s *scenarioService) UpdateScenario(ctx context.Context, scenario Scenario) error {
+func (s *ScenarioService) Update(ctx context.Context, scenario Scenario) error {
     return s.repo.UpdateScenario(ctx, scenario)
 }
 
-func (s *scenarioService) DeleteScenario(ctx context.Context, id int) error {
+func (s *ScenarioService) Delete(ctx context.Context, id int) error {
     return s.repo.DeleteScenario(ctx, id)
 }

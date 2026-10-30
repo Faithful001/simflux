@@ -3,7 +3,7 @@ package payment
 import (
 	"context"
 
-	"github.com/Faithful001/simflux.git/internal/server/payment/dto"
+	"github.com/Faithful001/simflux.git/internal/payment/dto"
 	"gorm.io/gorm"
 )
 
