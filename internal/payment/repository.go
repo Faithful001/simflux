@@ -15,6 +15,7 @@ type IPaymentRepository interface {
 	GetByStatus(ctx context.Context, status string) ([]Payment, error)
 	GetByProvider(ctx context.Context, provider string) ([]Payment, error)
 	Update(ctx context.Context, req dto.UpdatePaymentDto) error
+	Delete(ctx context.Context, id int) error
 }
 
 type PaymentRepository struct {
