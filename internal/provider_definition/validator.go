@@ -2,6 +2,7 @@ package provider_definition
 
 import (
 	"fmt"
+	"math"
 	"reflect"
 	"strings"
 )
@@ -14,12 +15,17 @@ var supportedFieldTypes = map[string]struct{}{
 }
 
 var reservedPaymentFields = map[string]struct{}{
-	"id":         {},
-	"provider":   {},
-	"reference":  {},
-	"status":     {},
-	"created_at": {},
-	"updated_at": {},
+    "id":                      {},
+    "provider_definition_id":  {},
+    "reference":               {},
+    "status":                  {},
+    "created_at":              {},
+    "updated_at":              {},
+}
+
+func IsReservedPaymentField(name string) bool {
+    _, exists := reservedPaymentFields[strings.ToLower(name)]
+    return exists
 }
 
 func ValidatePaymentDefinition(definition Definition) error {
@@ -94,8 +100,14 @@ func matchesType(value any, expected string) bool {
 		return kind == reflect.String
 
 	case "integer":
-		return kind >= reflect.Int && kind <= reflect.Int64 ||
-			kind >= reflect.Uint && kind <= reflect.Uint64
+		switch kind {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			return true
+		case reflect.Float32, reflect.Float64:
+			return math.Trunc(reflect.ValueOf(value).Convert(reflect.TypeOf(float64(0))).Float()) ==
+				reflect.ValueOf(value).Convert(reflect.TypeOf(float64(0))).Float()
+		}
 
 	case "number":
 		return kind >= reflect.Int && kind <= reflect.Int64 ||

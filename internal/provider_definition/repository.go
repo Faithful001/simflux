@@ -61,7 +61,7 @@ func (r *ProviderDefinitionRepository) Update(ctx context.Context, definition *P
 			"name":          definition.Name,
 			"provider_name": definition.ProviderName,
 			"version":       definition.Version,
-			"data":          definition.Data,
+			"fields":          definition.Fields,
 		})
 
 	if result.Error != nil {

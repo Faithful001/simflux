@@ -6,11 +6,12 @@ import (
 	"strconv"
 
 	"github.com/Faithful001/simflux.git/internal/payment"
+	"github.com/Faithful001/simflux.git/internal/provider_definition"
 	"github.com/spf13/cobra"
 )
 
-func NewPaymentsCommand(repo payment.IPaymentRepository) *cobra.Command {
-	paymentService := payment.NewPaymentService(repo)
+func NewPaymentsCommand(paymentRepo payment.IPaymentRepository, providerDefinitionRepo provider_definition.IProviderDefinitionRepository) *cobra.Command {
+	paymentService := payment.NewPaymentService(paymentRepo, providerDefinitionRepo)
 
 	cmd := &cobra.Command{
 		Use:   "payments",

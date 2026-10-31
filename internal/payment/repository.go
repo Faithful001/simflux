@@ -2,6 +2,8 @@ package payment
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 
 	"github.com/Faithful001/simflux.git/internal/payment/dto"
 	"gorm.io/gorm"
@@ -40,14 +42,23 @@ func NewPaymentRepository(db *gorm.DB) IPaymentRepository {
 	}
 }
 
-func (r *PaymentRepository) Create(ctx context.Context, req dto.CreatePaymentRequest) error {
-	payment := Payment{
-		ProviderDefinitionID: req.ProviderDefinitionID,
-		Reference:            req.Reference,
-		Status:               req.Status,
+func (r *PaymentRepository) Create(
+    ctx context.Context,
+    req dto.CreatePaymentRequest,
+) error {
+	fields, err := json.Marshal(req.Fields)
+	if err != nil {
+		return fmt.Errorf("failed to encode payment fields: %w", err)
 	}
 
-	return r.db.WithContext(ctx).Create(&payment).Error
+    payment := Payment{
+        ProviderDefinitionID: req.ProviderDefinitionID,
+        Reference:            req.Reference,
+        Status:               req.Status,
+        Fields:            	  fields,
+    }
+
+    return r.db.WithContext(ctx).Create(&payment).Error
 }
 
 func (r *PaymentRepository) Get(ctx context.Context) ([]Payment, error) {

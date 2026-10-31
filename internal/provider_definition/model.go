@@ -10,7 +10,7 @@ type ProviderDefinition struct {
 	Name         	string 				`gorm:"type:varchar(255);not null" json:"name"`
 	ProviderName	string				`gorm:"type:varchar(255);not null" json:"provider_name"`
 	Version      	string 				`gorm:"type:varchar(100);not null" json:"version"`
-	Data 			json.RawMessage		`gorm:"type:jsonb;not null" json:"data"`
+	Fields 			json.RawMessage		`gorm:"type:jsonb;not null" json:"fields"`
 
 	CreatedAt 		time.Time 			`gorm:"not null;autoCreateTime" json:"created_at"`
 	UpdatedAt 		time.Time 			`gorm:"not null;autoUpdateTime" json:"updated_at"`
