@@ -38,13 +38,7 @@ func (s *PaymentService) Get(ctx context.Context) ([]dto.PaymentResponse, error)
 		return nil, err
 	}
 
-	responses := make([]dto.PaymentResponse, 0, len(payments))
-
-	for _, p := range payments {
-		responses = append(responses, toPaymentResponse(p))
-	}
-
-	return responses, nil
+	return toPaymentResponses(payments), nil
 }
 
 func (s *PaymentService) GetByID(ctx context.Context, id int64) (dto.PaymentResponse, error) {
@@ -61,7 +55,11 @@ func (s *PaymentService) GetByReference(
 	providerDefinitionID int64,
 	reference string,
 ) (dto.PaymentResponse, error) {
-	p, err := s.repo.GetByReference(ctx, providerDefinitionID, reference)
+	p, err := s.repo.GetByReferenceWithProviderDefinition(
+		ctx,
+		providerDefinitionID,
+		reference,
+	)
 	if err != nil {
 		return dto.PaymentResponse{}, err
 	}
@@ -73,36 +71,27 @@ func (s *PaymentService) GetByStatus(
 	ctx context.Context,
 	status string,
 ) ([]dto.PaymentResponse, error) {
-	payments, err := s.repo.GetByStatus(ctx, status)
+	payments, err := s.repo.GetByStatusWithProviderDefinition(ctx, status)
 	if err != nil {
 		return nil, err
 	}
 
-	responses := make([]dto.PaymentResponse, 0, len(payments))
-
-	for _, p := range payments {
-		responses = append(responses, toPaymentResponse(p))
-	}
-
-	return responses, nil
+	return toPaymentResponses(payments), nil
 }
 
 func (s *PaymentService) GetByProviderDefinitionID(
 	ctx context.Context,
 	providerDefinitionID int64,
 ) ([]dto.PaymentResponse, error) {
-	payments, err := s.repo.GetByProviderDefinitionID(ctx, providerDefinitionID)
+	payments, err := s.repo.GetByProviderDefinitionIDWithProviderDefinition(
+		ctx,
+		providerDefinitionID,
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	responses := make([]dto.PaymentResponse, 0, len(payments))
-
-	for _, p := range payments {
-		responses = append(responses, toPaymentResponse(p))
-	}
-
-	return responses, nil
+	return toPaymentResponses(payments), nil
 }
 
 func (s *PaymentService) Update(ctx context.Context, req dto.UpdatePaymentRequest) error {
