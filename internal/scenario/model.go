@@ -5,7 +5,7 @@ import (
 )
 
 type Scenario struct {
-	ID     		int  		`gorm:"type:bigint;primaryKey;autoIncrement" json:"id"`
+	ID     		int64  		`gorm:"type:bigint;primaryKey;autoIncrement" json:"id"`
 	Name   		string 		`gorm:"type:varchar(255);not null" json:"name"`
 	Type   		string		`gorm:"type:varchar(100);default:'success'" json:"type"`
 	Status 		string 		`gorm:"type:varchar(100);default:'ready'" json:"status"`

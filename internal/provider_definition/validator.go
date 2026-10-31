@@ -1,4 +1,4 @@
-package provider
+package provider_definition
 
 import (
 	"fmt"
@@ -22,7 +22,7 @@ var reservedPaymentFields = map[string]struct{}{
 	"updated_at": {},
 }
 
-func ValidatePaymentDefinition(definition ProviderDefinition) error {
+func ValidatePaymentDefinition(definition Definition) error {
 	if len(definition.Payment.Fields) == 0 {
 		return fmt.Errorf("provider must define at least one payment field")
 	}
@@ -51,7 +51,7 @@ func ValidatePaymentDefinition(definition ProviderDefinition) error {
 }
 
 func ValidatePaymentData(
-	definition ProviderDefinition,
+	definition Definition,
 	data map[string]any,
 ) error {
 	for name, field := range definition.Payment.Fields {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Faithful001/simflux.git/internal/provider"
+	provider "github.com/Faithful001/simflux.git/internal/provider_definition"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 )
@@ -28,7 +28,7 @@ func NewLoadCommand() *cobra.Command {
 				return fmt.Errorf("failed to read definition file: %w", err)
 			}
 
-			var definition provider.ProviderDefinition
+			var definition provider.Definition
 
 			if err := yaml.Unmarshal(content, &definition); err != nil {
 				return fmt.Errorf("invalid YAML definition: %w", err)

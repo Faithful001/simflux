@@ -9,16 +9,16 @@ import (
 type IPaymentService interface {
 	Create(ctx context.Context, req dto.CreatePaymentRequest) error
 	Get(ctx context.Context) ([]dto.PaymentResponse, error)
-	GetByID(ctx context.Context, id int) (dto.PaymentResponse, error)
-	GetByReference(ctx context.Context, reference string) (dto.PaymentResponse, error)
+	GetByID(ctx context.Context, id int64) (dto.PaymentResponse, error)
+	GetByReference(ctx context.Context, providerDefinitionID int64, reference string) (dto.PaymentResponse, error)
 	GetByStatus(ctx context.Context, status string) ([]dto.PaymentResponse, error)
-	GetByProvider(ctx context.Context, provider string) ([]dto.PaymentResponse, error)
+	GetByProviderDefinitionID(ctx context.Context, providerDefinitionID int64) ([]dto.PaymentResponse, error)
 	Update(ctx context.Context, req dto.UpdatePaymentRequest) error
-	Delete(ctx context.Context, id int) error
+	Delete(ctx context.Context, id int64) error
 	Clear(ctx context.Context) error
 }
 
-type PaymentService struct{
+type PaymentService struct {
 	repo IPaymentRepository
 }
 
@@ -32,13 +32,8 @@ func (s *PaymentService) Create(ctx context.Context, req dto.CreatePaymentReques
 	return s.repo.Create(ctx, req)
 }
 
-func (*PaymentService) Verify() {
-
-}
-
 func (s *PaymentService) Get(ctx context.Context) ([]dto.PaymentResponse, error) {
 	payments, err := s.repo.Get(ctx)
-
 	if err != nil {
 		return nil, err
 	}
@@ -50,36 +45,28 @@ func (s *PaymentService) Get(ctx context.Context) ([]dto.PaymentResponse, error)
 	}
 
 	return responses, nil
-
 }
 
-func (s *PaymentService) GetByID(ctx context.Context, id int) (dto.PaymentResponse, error) {
+func (s *PaymentService) GetByID(ctx context.Context, id int64) (dto.PaymentResponse, error) {
 	payment, err := s.repo.GetByID(ctx, id)
-	
 	if err != nil {
 		return dto.PaymentResponse{}, err
 	}
 
-	response := toPaymentResponse(payment)
-
-	return response, nil
+	return toPaymentResponse(payment), nil
 }
 
-func (s *PaymentService) GetByReference(ctx context.Context, reference string) (dto.PaymentResponse, error) {
-	payment, err := s.repo.GetByReference(ctx, reference)
-
+func (s *PaymentService) GetByReference(ctx context.Context, providerDefinitionID int64, reference string) (dto.PaymentResponse, error) {
+	payment, err := s.repo.GetByReference(ctx, providerDefinitionID, reference)
 	if err != nil {
 		return dto.PaymentResponse{}, err
 	}
 
-	response := toPaymentResponse(payment)
-	
-	return response, nil
+	return toPaymentResponse(payment), nil
 }
 
 func (s *PaymentService) GetByStatus(ctx context.Context, status string) ([]dto.PaymentResponse, error) {
-	payments, err := s.repo.GetByStatus(ctx, status) 
-
+	payments, err := s.repo.GetByStatus(ctx, status)
 	if err != nil {
 		return nil, err
 	}
@@ -92,9 +79,9 @@ func (s *PaymentService) GetByStatus(ctx context.Context, status string) ([]dto.
 
 	return responses, nil
 }
-func (s *PaymentService) GetByProvider(ctx context.Context, provider string) ([]dto.PaymentResponse, error) {
-	payments, err := s.repo.GetByProvider(ctx, provider) 
 
+func (s *PaymentService) GetByProviderDefinitionID(ctx context.Context, providerDefinitionID int64) ([]dto.PaymentResponse, error) {
+	payments, err := s.repo.GetByProviderDefinitionID(ctx, providerDefinitionID)
 	if err != nil {
 		return nil, err
 	}
@@ -107,15 +94,15 @@ func (s *PaymentService) GetByProvider(ctx context.Context, provider string) ([]
 
 	return responses, nil
 }
+
 func (s *PaymentService) Update(ctx context.Context, req dto.UpdatePaymentRequest) error {
-	return s.repo.Update(ctx, req) 
+	return s.repo.Update(ctx, req)
 }
 
-func (s *PaymentService) Delete(ctx context.Context, id int) error  {
-	return s.repo.Delete(ctx, id) 
+func (s *PaymentService) Delete(ctx context.Context, id int64) error {
+	return s.repo.Delete(ctx, id)
 }
 
 func (s *PaymentService) Clear(ctx context.Context) error {
-    return s.repo.Clear(ctx)
+	return s.repo.Clear(ctx)
 }
-

@@ -1,6 +1,6 @@
-package provider
+package provider_definition
 
-type ProviderDefinition struct {
+type Definition struct {
 	Name    string       `yaml:"name"`
 	Version string       `yaml:"version"`
 	Payment PaymentModel `yaml:"payment"`

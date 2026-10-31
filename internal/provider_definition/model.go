@@ -1,0 +1,21 @@
+package provider_definition
+
+import (
+	"encoding/json"
+	"time"
+)
+
+type ProviderDefinition struct {
+	ID           	int64 				`gorm:"type:bigint;autoIncrement;primaryKey" json:"id"`
+	Name         	string 				`gorm:"type:varchar(255);not null" json:"name"`
+	ProviderName	string				`gorm:"type:varchar(255);not null" json:"provider_name"`
+	Version      	string 				`gorm:"type:varchar(100);not null" json:"version"`
+	Data 			json.RawMessage		`gorm:"type:jsonb;not null" json:"data"`
+
+	CreatedAt 		time.Time 			`gorm:"not null;autoCreateTime" json:"created_at"`
+	UpdatedAt 		time.Time 			`gorm:"not null;autoUpdateTime" json:"updated_at"`
+}
+
+func (ProviderDefinition) TableName() string {
+	return "provider_definitions"
+}

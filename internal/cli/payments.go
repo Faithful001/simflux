@@ -45,9 +45,9 @@ func newPaymentsListCommand(service payment.IPaymentService) *cobra.Command {
 
 			fmt.Fprintf(
 				cmd.OutOrStdout(),
-				"%-8s %-20s %-25s %-15s\n",
+				"%-8s %-25s %-25s %-15s\n",
 				"ID",
-				"PROVIDER",
+				"PROVIDER DEFINITION ID",
 				"REFERENCE",
 				"STATUS",
 			)
@@ -55,9 +55,9 @@ func newPaymentsListCommand(service payment.IPaymentService) *cobra.Command {
 			for _, p := range payments {
 				fmt.Fprintf(
 					cmd.OutOrStdout(),
-					"%-8d %-20s %-25s %-15s\n",
+					"%-8d %-25d %-25s %-15s\n",
 					p.ID,
-					p.Provider,
+					p.ProviderDefinitionID,
 					p.Reference,
 					p.Status,
 				)
@@ -74,7 +74,7 @@ func newPaymentsShowCommand(service payment.IPaymentService) *cobra.Command {
 		Short: "Show payment details",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := strconv.Atoi(args[0])
+			id, err := strconv.ParseInt(args[0], 10, 64)
 			if err != nil {
 				return fmt.Errorf("invalid payment ID: %s", args[0])
 			}

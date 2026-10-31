@@ -1,0 +1,2 @@
+- remove the data column from the payments table
+- create the provider_definitions table
