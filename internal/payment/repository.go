@@ -81,14 +81,24 @@ func (r *PaymentRepository) GetByProvider(ctx context.Context, provider string) 
 }
 
 func (r *PaymentRepository) Update(ctx context.Context, req dto.UpdatePaymentRequest) error {
-    return r.db.WithContext(ctx).
+    result := r.db.WithContext(ctx).
         Model(&Payment{}).
         Where("reference = ?", req.Reference).
         Updates(map[string]any{
             "provider": req.Provider,
             "status":   req.Status,
             "data":     req.Data,
-        }).Error
+        })
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+
+	return nil
 }
 
 func (r *PaymentRepository) Delete(ctx context.Context, id int) error {
