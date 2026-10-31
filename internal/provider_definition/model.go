@@ -6,7 +6,7 @@ import (
 )
 
 type ProviderDefinition struct {
-	ID           	int64 				`gorm:"type:bigint;autoIncrement;primaryKey" json:"id"`
+	ID           	int64 				`gorm:"primaryKey;autoIncrement" json:"id"`
 	Name         	string 				`gorm:"type:varchar(255);not null" json:"name"`
 	ProviderName	string				`gorm:"type:varchar(255);not null" json:"provider_name"`
 	Version      	string 				`gorm:"type:varchar(100);not null" json:"version"`

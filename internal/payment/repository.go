@@ -9,11 +9,22 @@ import (
 
 type IPaymentRepository interface {
 	Create(ctx context.Context, req dto.CreatePaymentRequest) error
+
 	Get(ctx context.Context) ([]Payment, error)
+	GetWithProviderDefinition(ctx context.Context) ([]Payment, error)
+
 	GetByID(ctx context.Context, id int64) (Payment, error)
+	GetByIDWithProviderDefinition(ctx context.Context, id int64) (Payment, error)
+
 	GetByReference(ctx context.Context, providerDefinitionID int64, reference string) (Payment, error)
+	GetByReferenceWithProviderDefinition(ctx context.Context, providerDefinitionID int64, reference string) (Payment, error)
+
 	GetByStatus(ctx context.Context, status string) ([]Payment, error)
+	GetByStatusWithProviderDefinition(ctx context.Context, status string) ([]Payment, error)
+
 	GetByProviderDefinitionID(ctx context.Context, providerDefinitionID int64) ([]Payment, error)
+	GetByProviderDefinitionIDWithProviderDefinition(ctx context.Context, providerDefinitionID int64) ([]Payment, error)
+
 	Update(ctx context.Context, req dto.UpdatePaymentRequest) error
 	Delete(ctx context.Context, id int64) error
 	Clear(ctx context.Context) error
@@ -46,6 +57,16 @@ func (r *PaymentRepository) Get(ctx context.Context) ([]Payment, error) {
 	return payments, err
 }
 
+func (r *PaymentRepository) GetWithProviderDefinition(ctx context.Context) ([]Payment, error) {
+	var payments []Payment
+
+	err := r.db.WithContext(ctx).
+		Preload("ProviderDefinition").
+		Find(&payments).Error
+
+	return payments, err
+}
+
 func (r *PaymentRepository) GetByID(ctx context.Context, id int64) (Payment, error) {
 	var payment Payment
 
@@ -53,11 +74,48 @@ func (r *PaymentRepository) GetByID(ctx context.Context, id int64) (Payment, err
 	return payment, err
 }
 
-func (r *PaymentRepository) GetByReference(ctx context.Context, providerDefinitionID int64, reference string) (Payment, error) {
+func (r *PaymentRepository) GetByIDWithProviderDefinition(ctx context.Context, id int64) (Payment, error) {
 	var payment Payment
 
 	err := r.db.WithContext(ctx).
-		Where("provider_definition_id = ? AND reference = ?", providerDefinitionID, reference).
+		Preload("ProviderDefinition").
+		First(&payment, id).Error
+
+	return payment, err
+}
+
+func (r *PaymentRepository) GetByReference(
+	ctx context.Context,
+	providerDefinitionID int64,
+	reference string,
+) (Payment, error) {
+	var payment Payment
+
+	err := r.db.WithContext(ctx).
+		Where(
+			"provider_definition_id = ? AND reference = ?",
+			providerDefinitionID,
+			reference,
+		).
+		First(&payment).Error
+
+	return payment, err
+}
+
+func (r *PaymentRepository) GetByReferenceWithProviderDefinition(
+	ctx context.Context,
+	providerDefinitionID int64,
+	reference string,
+) (Payment, error) {
+	var payment Payment
+
+	err := r.db.WithContext(ctx).
+		Preload("ProviderDefinition").
+		Where(
+			"provider_definition_id = ? AND reference = ?",
+			providerDefinitionID,
+			reference,
+		).
 		First(&payment).Error
 
 	return payment, err
@@ -73,7 +131,24 @@ func (r *PaymentRepository) GetByStatus(ctx context.Context, status string) ([]P
 	return payments, err
 }
 
-func (r *PaymentRepository) GetByProviderDefinitionID(ctx context.Context, providerDefinitionID int64) ([]Payment, error) {
+func (r *PaymentRepository) GetByStatusWithProviderDefinition(
+	ctx context.Context,
+	status string,
+) ([]Payment, error) {
+	var payments []Payment
+
+	err := r.db.WithContext(ctx).
+		Preload("ProviderDefinition").
+		Where("status = ?", status).
+		Find(&payments).Error
+
+	return payments, err
+}
+
+func (r *PaymentRepository) GetByProviderDefinitionID(
+	ctx context.Context,
+	providerDefinitionID int64,
+) ([]Payment, error) {
 	var payments []Payment
 
 	err := r.db.WithContext(ctx).
@@ -83,10 +158,28 @@ func (r *PaymentRepository) GetByProviderDefinitionID(ctx context.Context, provi
 	return payments, err
 }
 
+func (r *PaymentRepository) GetByProviderDefinitionIDWithProviderDefinition(
+	ctx context.Context,
+	providerDefinitionID int64,
+) ([]Payment, error) {
+	var payments []Payment
+
+	err := r.db.WithContext(ctx).
+		Preload("ProviderDefinition").
+		Where("provider_definition_id = ?", providerDefinitionID).
+		Find(&payments).Error
+
+	return payments, err
+}
+
 func (r *PaymentRepository) Update(ctx context.Context, req dto.UpdatePaymentRequest) error {
 	result := r.db.WithContext(ctx).
 		Model(&Payment{}).
-		Where("reference = ?", req.Reference).
+		Where(
+			"provider_definition_id = ? AND reference = ?",
+			req.ProviderDefinitionID,
+			req.Reference,
+		).
 		Updates(map[string]any{
 			"status": req.Status,
 		})
@@ -103,8 +196,17 @@ func (r *PaymentRepository) Update(ctx context.Context, req dto.UpdatePaymentReq
 }
 
 func (r *PaymentRepository) Delete(ctx context.Context, id int64) error {
-	return r.db.WithContext(ctx).
-		Delete(&Payment{}, id).Error
+	result := r.db.WithContext(ctx).Delete(&Payment{}, id)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+
+	return nil
 }
 
 func (r *PaymentRepository) Clear(ctx context.Context) error {

@@ -12,3 +12,13 @@ func toPaymentResponse(payment Payment) dto.PaymentResponse {
 		UpdatedAt:            payment.UpdatedAt,
 	}
 }
+
+func toPaymentResponses(payments []Payment) []dto.PaymentResponse {
+	responses := make([]dto.PaymentResponse, 0, len(payments))
+
+	for _, p := range payments {
+		responses = append(responses, toPaymentResponse(p))
+	}
+
+	return responses
+}

@@ -33,39 +33,46 @@ func (s *PaymentService) Create(ctx context.Context, req dto.CreatePaymentReques
 }
 
 func (s *PaymentService) Get(ctx context.Context) ([]dto.PaymentResponse, error) {
-	payments, err := s.repo.Get(ctx)
+	payments, err := s.repo.GetWithProviderDefinition(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	responses := make([]dto.PaymentResponse, 0, len(payments))
 
-	for _, payment := range payments {
-		responses = append(responses, toPaymentResponse(payment))
+	for _, p := range payments {
+		responses = append(responses, toPaymentResponse(p))
 	}
 
 	return responses, nil
 }
 
 func (s *PaymentService) GetByID(ctx context.Context, id int64) (dto.PaymentResponse, error) {
-	payment, err := s.repo.GetByID(ctx, id)
+	p, err := s.repo.GetByIDWithProviderDefinition(ctx, id)
 	if err != nil {
 		return dto.PaymentResponse{}, err
 	}
 
-	return toPaymentResponse(payment), nil
+	return toPaymentResponse(p), nil
 }
 
-func (s *PaymentService) GetByReference(ctx context.Context, providerDefinitionID int64, reference string) (dto.PaymentResponse, error) {
-	payment, err := s.repo.GetByReference(ctx, providerDefinitionID, reference)
+func (s *PaymentService) GetByReference(
+	ctx context.Context,
+	providerDefinitionID int64,
+	reference string,
+) (dto.PaymentResponse, error) {
+	p, err := s.repo.GetByReference(ctx, providerDefinitionID, reference)
 	if err != nil {
 		return dto.PaymentResponse{}, err
 	}
 
-	return toPaymentResponse(payment), nil
+	return toPaymentResponse(p), nil
 }
 
-func (s *PaymentService) GetByStatus(ctx context.Context, status string) ([]dto.PaymentResponse, error) {
+func (s *PaymentService) GetByStatus(
+	ctx context.Context,
+	status string,
+) ([]dto.PaymentResponse, error) {
 	payments, err := s.repo.GetByStatus(ctx, status)
 	if err != nil {
 		return nil, err
@@ -73,14 +80,17 @@ func (s *PaymentService) GetByStatus(ctx context.Context, status string) ([]dto.
 
 	responses := make([]dto.PaymentResponse, 0, len(payments))
 
-	for _, payment := range payments {
-		responses = append(responses, toPaymentResponse(payment))
+	for _, p := range payments {
+		responses = append(responses, toPaymentResponse(p))
 	}
 
 	return responses, nil
 }
 
-func (s *PaymentService) GetByProviderDefinitionID(ctx context.Context, providerDefinitionID int64) ([]dto.PaymentResponse, error) {
+func (s *PaymentService) GetByProviderDefinitionID(
+	ctx context.Context,
+	providerDefinitionID int64,
+) ([]dto.PaymentResponse, error) {
 	payments, err := s.repo.GetByProviderDefinitionID(ctx, providerDefinitionID)
 	if err != nil {
 		return nil, err
@@ -88,8 +98,8 @@ func (s *PaymentService) GetByProviderDefinitionID(ctx context.Context, provider
 
 	responses := make([]dto.PaymentResponse, 0, len(payments))
 
-	for _, payment := range payments {
-		responses = append(responses, toPaymentResponse(payment))
+	for _, p := range payments {
+		responses = append(responses, toPaymentResponse(p))
 	}
 
 	return responses, nil
