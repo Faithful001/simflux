@@ -29,12 +29,13 @@ func NewPaymentsCommand(paymentRepo payment.IPaymentRepository, providerDefiniti
 }
 
 func newPaymentsListCommand(service payment.IPaymentService) *cobra.Command {
-	return &cobra.Command{
+	var status, reference string
+	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "List all payments",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			payments, err := service.Get(cmd.Context())
+			payments, err := service.Get(cmd.Context(), status, reference)
 			if err != nil {
 				return err
 			}
@@ -67,6 +68,11 @@ func newPaymentsListCommand(service payment.IPaymentService) *cobra.Command {
 			return nil
 		},
 	}
+
+	cmd.Flags().StringVarP(&status, "status", "-s", "", "Filter payments by status")
+	cmd.Flags().StringVarP(&reference, "reference", "-ref", "", "Filter payments by reference")
+
+	return cmd
 }
 
 func newPaymentsShowCommand(service payment.IPaymentService) *cobra.Command {

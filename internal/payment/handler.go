@@ -44,7 +44,10 @@ func (h *PaymentHandler) Create(c *gin.Context) {
 }
 
 func (h *PaymentHandler) Get(c *gin.Context) {
-	payments, err := h.service.Get(c.Request.Context())
+	status := c.Query("status")
+	reference := c.Query("reference")
+
+	payments, err := h.service.Get(c.Request.Context(), status, reference)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

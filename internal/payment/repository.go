@@ -12,8 +12,16 @@ import (
 type IPaymentRepository interface {
 	Create(ctx context.Context, req dto.CreatePaymentRequest) error
 
-	Get(ctx context.Context) ([]Payment, error)
-	GetWithProviderDefinition(ctx context.Context) ([]Payment, error)
+	Get(		
+		ctx context.Context,
+		status string,
+		reference string,
+	) ([]Payment, error)
+	GetWithProviderDefinition(
+		ctx context.Context,
+		status string,
+		reference string,
+	) ([]Payment, error)
 
 	GetByID(ctx context.Context, id int64) (Payment, error)
 	GetByIDWithProviderDefinition(ctx context.Context, id int64) (Payment, error)
@@ -61,18 +69,30 @@ func (r *PaymentRepository) Create(
     return r.db.WithContext(ctx).Create(&payment).Error
 }
 
-func (r *PaymentRepository) Get(ctx context.Context) ([]Payment, error) {
+func (r *PaymentRepository) Get(
+	ctx context.Context,
+	status string,
+	reference string,
+	) ([]Payment, error) {
 	var payments []Payment
 
-	err := r.db.WithContext(ctx).Find(&payments).Error
+	err := r.db.WithContext(ctx).
+		Where("status = ? AND reference = ?", status, reference).
+		Find(&payments).Error
+
 	return payments, err
 }
 
-func (r *PaymentRepository) GetWithProviderDefinition(ctx context.Context) ([]Payment, error) {
+func (r *PaymentRepository) GetWithProviderDefinition(
+	ctx context.Context,
+	status string,
+	reference string,
+	) ([]Payment, error) {
 	var payments []Payment
 
 	err := r.db.WithContext(ctx).
 		Preload("ProviderDefinition").
+		Where("status = ? AND reference = ?", status, reference).
 		Find(&payments).Error
 
 	return payments, err

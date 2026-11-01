@@ -23,8 +23,6 @@ func SetupRouter(
 		paymentRoutes.POST("", paymentHandler.Create)
 		paymentRoutes.GET("", paymentHandler.Get)
 		paymentRoutes.GET("/:id", paymentHandler.GetByID)
-		paymentRoutes.GET("/reference", paymentHandler.GetByReference)
-		paymentRoutes.GET("/status", paymentHandler.GetByStatus)
 		paymentRoutes.GET("/provider/:provider_definition_id", paymentHandler.GetByProviderDefinitionID)
 	}
 }

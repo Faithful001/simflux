@@ -11,7 +11,10 @@ import (
 
 type IPaymentService interface {
 	Create(ctx context.Context, req dto.CreatePaymentRequest) error
-	Get(ctx context.Context) ([]dto.PaymentResponse, error)
+	Get(ctx context.Context,
+	status string,
+	reference string,
+	) ([]dto.PaymentResponse, error)
 	GetByID(ctx context.Context, id int64) (dto.PaymentResponse, error)
 	GetByReference(ctx context.Context, providerDefinitionID int64, reference string) (dto.PaymentResponse, error)
 	GetByStatus(ctx context.Context, status string) ([]dto.PaymentResponse, error)
@@ -65,8 +68,12 @@ func (s *PaymentService) Create(
     return s.paymentRepo.Create(ctx, req)
 }
 
-func (s *PaymentService) Get(ctx context.Context) ([]dto.PaymentResponse, error) {
-	payments, err := s.paymentRepo.GetWithProviderDefinition(ctx)
+func (s *PaymentService) Get(
+	ctx context.Context,
+	status string,
+	reference string,
+	) ([]dto.PaymentResponse, error) {
+	payments, err := s.paymentRepo.GetWithProviderDefinition(ctx, status, reference)
 	if err != nil {
 		return nil, err
 	}
