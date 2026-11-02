@@ -61,7 +61,7 @@ func (s *PaymentService) Create(
 
 	var definition provider_definition.Definition
 
-	if err := json.Unmarshal(providerDefinition.Fields, &definition); err != nil {
+	if err := json.Unmarshal(providerDefinition.Payment, &definition); err != nil {
 		return fmt.Errorf("failed to decode provider definition: %w", err)
 	}
 

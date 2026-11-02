@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -9,7 +10,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func NewLoadCommand() *cobra.Command {
+func NewLoadCommand(pdService provider.IProviderDefinitionService) *cobra.Command {
 	var filePath string
 
 	cmd := &cobra.Command{
@@ -50,6 +51,28 @@ func NewLoadCommand() *cobra.Command {
 				return err
 			}
 
+			paymentBytes, err := json.Marshal(definition.Payment)
+			if err != nil {
+				return fmt.Errorf("failed to marshal payment definition: %w", err)
+			}
+
+			webhookBytes, err := json.Marshal(definition.Webhook)
+			if err != nil {
+				return fmt.Errorf("failed to marshal webhook definition: %w", err)
+			}
+
+			providerDefinition := provider.ProviderDefinition{
+				Name:     definition.Name,
+				Provider: definition.Provider,
+				Version:  definition.Version,
+				Payment:  paymentBytes,
+				Webhook:  webhookBytes,
+			}
+
+			if err := pdService.Create(cmd.Context(), &providerDefinition); err != nil {
+				return fmt.Errorf("failed to save provider definition: %w", err)
+			}
+
 			fmt.Fprintf(
 				cmd.OutOrStdout(),
 				"Successfully loaded provider definition: %s (v%s)\n",
@@ -71,7 +94,6 @@ func NewLoadCommand() *cobra.Command {
 
 	return cmd
 }
-
 
 func resolveDefinitionPath(filePath string) (string, error) {
 	if filePath != "" {

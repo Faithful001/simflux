@@ -8,9 +8,9 @@ import (
 type ProviderDefinition struct {
 	ID           	int64 				`gorm:"primaryKey;autoIncrement" json:"id"`
 	Name         	string 				`gorm:"type:varchar(255);not null" json:"name"`
-	ProviderName	string				`gorm:"type:varchar(255);not null" json:"provider_name"`
+	Provider	string					`gorm:"type:varchar(255);not null" json:"provider"`
 	Version      	string 				`gorm:"type:varchar(100);not null" json:"version"`
-	Fields 			json.RawMessage		`gorm:"type:jsonb;not null" json:"fields"`
+	// Fields 			json.RawMessage		`gorm:"type:jsonb;not null" json:"fields"`
 
 	Payment			json.RawMessage		`gorm:"type:jsonb;not null" json:"payment"`
 	Webhook			json.RawMessage		`gorm:"type:jsonb;not null" json:"webhook"`

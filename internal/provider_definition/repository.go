@@ -58,10 +58,11 @@ func (r *ProviderDefinitionRepository) Update(ctx context.Context, definition *P
 		Model(&ProviderDefinition{}).
 		Where("id = ?", definition.ID).
 		Updates(map[string]any{
-			"name":          definition.Name,
-			"provider_name": definition.ProviderName,
-			"version":       definition.Version,
-			"fields":          definition.Fields,
+			"name":     definition.Name,
+			"provider": definition.Provider,
+			"version":  definition.Version,
+			"payment":  definition.Payment,
+			"webhook":  definition.Webhook,
 		})
 
 	if result.Error != nil {

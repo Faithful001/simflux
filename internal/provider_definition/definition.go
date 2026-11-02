@@ -1,16 +1,17 @@
 package provider_definition
 
 type Definition struct {
-	Name    string       `yaml:"name"`
-	Version string       `yaml:"version"`
-	Payment PaymentModel `yaml:"payment"`
-	Webhook WebhookModel `yaml:"webhook"`
+	Name     string       `yaml:"name"`
+	Provider string       `yaml:"provider"`
+	Version  string       `yaml:"version"`
+	Payment  PaymentModel `yaml:"payment"`
+	Webhook  WebhookModel `yaml:"webhook"`
 }
 
 type WebhookModel struct {
 	URL       string         `yaml:"url"`
 	Signature SignatureModel `yaml:"signature"`
-	events    []string       `yaml:"events"`
+	Events    []string       `yaml:"events"`
 }
 
 type SignatureModel struct {
