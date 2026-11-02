@@ -25,6 +25,7 @@ func main() {
 		&event.Event{},
 		&webhook.Webhook{},
 		&webhook.WebhookConfig{},
+		&webhook.WebhookState{},
 		&scenario.Scenario{},
 	); err != nil {
 		os.Exit(1)
@@ -53,6 +54,7 @@ func main() {
 	cmd.AddCommand(
 		cli.NewLoadCommand(providerDefinitionService, eventRepo),
 		cli.NewPaymentsCommand(paymentRepo, providerDefinitionRepo, webhookDispatcher, webhookDelivery),
+		cli.NewWebhookCommand(webhookDispatcher, eventRepo),
 		cli.NewScenarioCommand(scenarioRepo),
 	)
 

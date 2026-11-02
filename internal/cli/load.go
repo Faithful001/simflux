@@ -2,6 +2,7 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -10,6 +11,7 @@ import (
 	provider "github.com/Faithful001/simflux.git/internal/provider_definition"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
+	"gorm.io/gorm"
 )
 
 func NewLoadCommand(
@@ -86,6 +88,9 @@ func NewLoadCommand(
 					}
 					if _, err := eventRepo.GetByName(cmd.Context(), trimmed); err != nil {
 						if err := eventRepo.Create(cmd.Context(), &event.Event{Name: trimmed}); err != nil {
+							if errors.Is(err, gorm.ErrDuplicatedKey) {
+								continue
+							}
 							return fmt.Errorf("failed to register event %q: %w", trimmed, err)
 						}
 					}

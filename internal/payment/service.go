@@ -86,7 +86,20 @@ func (s *PaymentService) Create(
 				return
 			}
 
+			// Resolve event name from the persisted override.
+			// the developer must call `simflux webhook set --event <name>`.
+			eventName, err := s.webhookDispatcher.GetActiveEvent()
+			if err != nil {
+				fmt.Printf("Error reading active webhook event: %v\n", err)
+				return
+			}
+			if eventName == "" {
+				fmt.Println("Webhook skipped: no active event set. Run `simflux webhook set --event <name>` to enable webhook delivery.")
+				return
+			}
+
 			payload, err := json.Marshal(webhookDto.WebhookRequest{
+				Event:     eventName,
 				Reference: req.Reference,
 				Status:    req.Status,
 				Fields:    req.Fields,
