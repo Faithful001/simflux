@@ -3,6 +3,7 @@ package router
 import (
 	"github.com/Faithful001/simflux.git/internal/payment"
 	"github.com/Faithful001/simflux.git/internal/provider_definition"
+	"github.com/Faithful001/simflux.git/internal/webhook"
 	"github.com/gin-gonic/gin"
 )
 
@@ -10,11 +11,15 @@ func SetupRouter(
 	r *gin.Engine,
 	paymentRepo payment.IPaymentRepository,
 	providerDefinitionRepo provider_definition.IProviderDefinitionRepository,
+	webhookDispatcher webhook.IWebhookDispatcher,
+	webhookDelivery webhook.IWebhookDelivery,
 	) {
 		
 	paymentService := payment.NewPaymentService(
 		paymentRepo,
 		providerDefinitionRepo,
+		webhookDispatcher,
+		webhookDelivery,
 	)
 	paymentHandler := payment.NewPaymentHandler(paymentService)
 

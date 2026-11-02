@@ -7,11 +7,22 @@ import (
 
 	"github.com/Faithful001/simflux.git/internal/payment"
 	"github.com/Faithful001/simflux.git/internal/provider_definition"
+	"github.com/Faithful001/simflux.git/internal/webhook"
 	"github.com/spf13/cobra"
 )
 
-func NewPaymentsCommand(paymentRepo payment.IPaymentRepository, providerDefinitionRepo provider_definition.IProviderDefinitionRepository) *cobra.Command {
-	paymentService := payment.NewPaymentService(paymentRepo, providerDefinitionRepo)
+func NewPaymentsCommand(
+	paymentRepo payment.IPaymentRepository,
+	providerDefinitionRepo provider_definition.IProviderDefinitionRepository,
+	webhookDispatcher webhook.IWebhookDispatcher,
+	webhookDelivery webhook.IWebhookDelivery,
+	) *cobra.Command {
+	paymentService := payment.NewPaymentService(
+		paymentRepo,
+		providerDefinitionRepo,
+		webhookDispatcher,
+		webhookDelivery,
+	)
 
 	cmd := &cobra.Command{
 		Use:   "payments",
