@@ -12,6 +12,9 @@ type ProviderDefinition struct {
 	Version      	string 				`gorm:"type:varchar(100);not null" json:"version"`
 	Fields 			json.RawMessage		`gorm:"type:jsonb;not null" json:"fields"`
 
+	Payment			json.RawMessage		`gorm:"type:jsonb;not null" json:"payment"`
+	Webhook			json.RawMessage		`gorm:"type:jsonb;not null" json:"webhook"`
+
 	CreatedAt 		time.Time 			`gorm:"not null;autoCreateTime" json:"created_at"`
 	UpdatedAt 		time.Time 			`gorm:"not null;autoUpdateTime" json:"updated_at"`
 }
