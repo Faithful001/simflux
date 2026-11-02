@@ -13,8 +13,7 @@ func SetupRouter(
 	providerDefinitionRepo provider_definition.IProviderDefinitionRepository,
 	webhookDispatcher webhook.IWebhookDispatcher,
 	webhookDelivery webhook.IWebhookDelivery,
-	) {
-		
+) {
 	paymentService := payment.NewPaymentService(
 		paymentRepo,
 		providerDefinitionRepo,
@@ -28,6 +27,8 @@ func SetupRouter(
 		paymentRoutes.POST("", paymentHandler.Create)
 		paymentRoutes.GET("", paymentHandler.Get)
 		paymentRoutes.GET("/:id", paymentHandler.GetByID)
-		paymentRoutes.GET("/provider/:provider_definition_id", paymentHandler.GetByProviderDefinitionID)
+		paymentRoutes.GET("/:id/status", paymentHandler.GetStatusByID)
+		paymentRoutes.GET("/reference/:reference", paymentHandler.GetByReference)
+		paymentRoutes.GET("/reference/:reference/status", paymentHandler.GetStatusByReference)
 	}
 }

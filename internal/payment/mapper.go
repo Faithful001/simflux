@@ -26,13 +26,12 @@ func toPaymentResponse(payment Payment) (dto.PaymentResponse, error) {
 	}
 
 	return dto.PaymentResponse{
-		ID:                   payment.ID,
-		ProviderDefinitionID: payment.ProviderDefinitionID,
-		Reference:            payment.Reference,
-		Status:               payment.Status,
-		CreatedAt:            payment.CreatedAt,
-		UpdatedAt:            payment.UpdatedAt,
-		Fields:               filteredFields,
+		ID:        payment.ID,
+		Reference: payment.Reference,
+		Status:    payment.Status,
+		CreatedAt: payment.CreatedAt,
+		UpdatedAt: payment.UpdatedAt,
+		Fields:    filteredFields,
 	}, nil
 }
 

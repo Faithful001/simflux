@@ -13,14 +13,10 @@ import (
 
 type IPaymentService interface {
 	Create(ctx context.Context, req dto.CreatePaymentRequest) error
-	Get(ctx context.Context,
-		status string,
-		reference string,
-	) ([]dto.PaymentResponse, error)
+	Get(ctx context.Context, status string) ([]dto.PaymentResponse, error)
 	GetByID(ctx context.Context, id int64) (dto.PaymentResponse, error)
-	GetByReference(ctx context.Context, providerDefinitionID int64, reference string) (dto.PaymentResponse, error)
+	GetByReference(ctx context.Context, reference string) (dto.PaymentResponse, error)
 	GetByStatus(ctx context.Context, status string) ([]dto.PaymentResponse, error)
-	GetByProviderDefinitionID(ctx context.Context, providerDefinitionID int64) ([]dto.PaymentResponse, error)
 	Update(ctx context.Context, req dto.UpdatePaymentRequest) error
 	Delete(ctx context.Context, id int64) error
 	Clear(ctx context.Context) error
@@ -51,18 +47,21 @@ func (s *PaymentService) Create(
 	ctx context.Context,
 	req dto.CreatePaymentRequest,
 ) error {
-	providerDefinition, err := s.providerDefinitionRepo.GetByID(
-		ctx,
-		req.ProviderDefinitionID,
-	)
+	providerDefinition, err := s.providerDefinitionRepo.GetActive(ctx)
 	if err != nil {
-		return err
+		return fmt.Errorf("no active provider definition found: %w", err)
 	}
 
-	var definition provider_definition.Definition
+	var paymentModel provider_definition.PaymentModel
+	if err := json.Unmarshal(providerDefinition.Payment, &paymentModel); err != nil {
+		return fmt.Errorf("failed to decode provider payment definition: %w", err)
+	}
 
-	if err := json.Unmarshal(providerDefinition.Payment, &definition); err != nil {
-		return fmt.Errorf("failed to decode provider definition: %w", err)
+	definition := provider_definition.Definition{
+		Name:     providerDefinition.Name,
+		Provider: providerDefinition.Provider,
+		Version:  providerDefinition.Version,
+		Payment:  paymentModel,
 	}
 
 	if err := provider_definition.ValidatePaymentDefinition(definition); err != nil {
@@ -115,92 +114,46 @@ func (s *PaymentService) Create(
 func (s *PaymentService) Get(
 	ctx context.Context,
 	status string,
-	reference string,
 ) ([]dto.PaymentResponse, error) {
-	payments, err := s.paymentRepo.GetWithProviderDefinition(ctx, status, reference)
+	payments, err := s.paymentRepo.Get(ctx, status)
 	if err != nil {
 		return nil, err
 	}
 
-	paymentResponse, err := toPaymentResponses(payments)
-	if err != nil {
-		return nil, err
-	}
-
-	return paymentResponse, nil
+	return toPaymentResponses(payments)
 }
 
 func (s *PaymentService) GetByID(ctx context.Context, id int64) (dto.PaymentResponse, error) {
-	p, err := s.paymentRepo.GetByIDWithProviderDefinition(ctx, id)
+	p, err := s.paymentRepo.GetByID(ctx, id)
 	if err != nil {
 		return dto.PaymentResponse{}, err
 	}
 
-	payment, err := toPaymentResponse(p)
-	if err != nil {
-		return dto.PaymentResponse{}, err
-	}
-
-	return payment, nil
+	return toPaymentResponse(p)
 }
 
 func (s *PaymentService) GetByReference(
 	ctx context.Context,
-	providerDefinitionID int64,
 	reference string,
 ) (dto.PaymentResponse, error) {
-	p, err := s.paymentRepo.GetByReferenceWithProviderDefinition(
-		ctx,
-		providerDefinitionID,
-		reference,
-	)
+	p, err := s.paymentRepo.GetByReference(ctx, reference)
 	if err != nil {
 		return dto.PaymentResponse{}, err
 	}
 
-	payment, err := toPaymentResponse(p)
-	if err != nil {
-		return dto.PaymentResponse{}, err
-	}
-
-	return payment, nil
+	return toPaymentResponse(p)
 }
 
 func (s *PaymentService) GetByStatus(
 	ctx context.Context,
 	status string,
 ) ([]dto.PaymentResponse, error) {
-	payments, err := s.paymentRepo.GetByStatusWithProviderDefinition(ctx, status)
+	payments, err := s.paymentRepo.GetByStatus(ctx, status)
 	if err != nil {
 		return nil, err
 	}
 
-	paymentResponse, err := toPaymentResponses(payments)
-	if err != nil {
-		return nil, err
-	}
-
-	return paymentResponse, nil
-}
-
-func (s *PaymentService) GetByProviderDefinitionID(
-	ctx context.Context,
-	providerDefinitionID int64,
-) ([]dto.PaymentResponse, error) {
-	payments, err := s.paymentRepo.GetByProviderDefinitionIDWithProviderDefinition(
-		ctx,
-		providerDefinitionID,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	paymentResponse, err := toPaymentResponses(payments)
-	if err != nil {
-		return nil, err
-	}
-
-	return paymentResponse, nil
+	return toPaymentResponses(payments)
 }
 
 func (s *PaymentService) Update(ctx context.Context, req dto.UpdatePaymentRequest) error {

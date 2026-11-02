@@ -12,9 +12,10 @@ type IPaymentHandler interface {
 	Create(c *gin.Context)
 	Get(c *gin.Context)
 	GetByID(c *gin.Context)
+	GetStatusByID(c *gin.Context)
 	GetByReference(c *gin.Context)
+	GetStatusByReference(c *gin.Context)
 	GetByStatus(c *gin.Context)
-	GetByProviderDefinitionID(c *gin.Context)
 }
 
 type PaymentHandler struct {
@@ -45,9 +46,8 @@ func (h *PaymentHandler) Create(c *gin.Context) {
 
 func (h *PaymentHandler) Get(c *gin.Context) {
 	status := c.Query("status")
-	reference := c.Query("reference")
 
-	payments, err := h.service.Get(c.Request.Context(), status, reference)
+	payments, err := h.service.Get(c.Request.Context(), status)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -72,30 +72,66 @@ func (h *PaymentHandler) GetByID(c *gin.Context) {
 	c.JSON(http.StatusOK, payment)
 }
 
-func (h *PaymentHandler) GetByReference(c *gin.Context) {
-	providerDefinitionID, err := strconv.ParseInt(c.Query("provider_definition_id"), 10, 64)
+func (h *PaymentHandler) GetStatusByID(c *gin.Context) {
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid provider definition ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid payment ID"})
 		return
 	}
 
-	reference := c.Query("reference")
+	payment, err := h.service.GetByID(c.Request.Context(), id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"id":        payment.ID,
+		"reference": payment.Reference,
+		"status":    payment.Status,
+	})
+}
+
+func (h *PaymentHandler) GetByReference(c *gin.Context) {
+	reference := c.Param("reference")
+	if reference == "" {
+		reference = c.Query("reference")
+	}
 	if reference == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Reference is required"})
 		return
 	}
 
-	payment, err := h.service.GetByReference(
-		c.Request.Context(),
-		providerDefinitionID,
-		reference,
-	)
+	payment, err := h.service.GetByReference(c.Request.Context(), reference)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusOK, payment)
+}
+
+func (h *PaymentHandler) GetStatusByReference(c *gin.Context) {
+	reference := c.Param("reference")
+	if reference == "" {
+		reference = c.Query("reference")
+	}
+	if reference == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Reference is required"})
+		return
+	}
+
+	payment, err := h.service.GetByReference(c.Request.Context(), reference)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"id":        payment.ID,
+		"reference": payment.Reference,
+		"status":    payment.Status,
+	})
 }
 
 func (h *PaymentHandler) GetByStatus(c *gin.Context) {
@@ -106,25 +142,6 @@ func (h *PaymentHandler) GetByStatus(c *gin.Context) {
 	}
 
 	payments, err := h.service.GetByStatus(c.Request.Context(), status)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, payments)
-}
-
-func (h *PaymentHandler) GetByProviderDefinitionID(c *gin.Context) {
-	providerDefinitionID, err := strconv.ParseInt(c.Param("provider_definition_id"), 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid provider definition ID"})
-		return
-	}
-
-	payments, err := h.service.GetByProviderDefinitionID(
-		c.Request.Context(),
-		providerDefinitionID,
-	)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

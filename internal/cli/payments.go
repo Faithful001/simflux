@@ -16,7 +16,7 @@ func NewPaymentsCommand(
 	providerDefinitionRepo provider_definition.IProviderDefinitionRepository,
 	webhookDispatcher webhook.IWebhookDispatcher,
 	webhookDelivery webhook.IWebhookDelivery,
-	) *cobra.Command {
+) *cobra.Command {
 	paymentService := payment.NewPaymentService(
 		paymentRepo,
 		providerDefinitionRepo,
@@ -46,7 +46,17 @@ func newPaymentsListCommand(service payment.IPaymentService) *cobra.Command {
 		Short: "List all payments",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			payments, err := service.Get(cmd.Context(), status, reference)
+			if reference != "" {
+				p, err := service.GetByReference(cmd.Context(), reference)
+				if err != nil {
+					return err
+				}
+				encoder := json.NewEncoder(cmd.OutOrStdout())
+				encoder.SetIndent("", "  ")
+				return encoder.Encode(p)
+			}
+
+			payments, err := service.Get(cmd.Context(), status)
 			if err != nil {
 				return err
 			}
@@ -58,9 +68,8 @@ func newPaymentsListCommand(service payment.IPaymentService) *cobra.Command {
 
 			fmt.Fprintf(
 				cmd.OutOrStdout(),
-				"%-8s %-25s %-25s %-15s\n",
+				"%-8s %-36s %-15s\n",
 				"ID",
-				"PROVIDER DEFINITION ID",
 				"REFERENCE",
 				"STATUS",
 			)
@@ -68,9 +77,8 @@ func newPaymentsListCommand(service payment.IPaymentService) *cobra.Command {
 			for _, p := range payments {
 				fmt.Fprintf(
 					cmd.OutOrStdout(),
-					"%-8d %-25d %-25s %-15s\n",
+					"%-8d %-36s %-15s\n",
 					p.ID,
-					p.ProviderDefinitionID,
 					p.Reference,
 					p.Status,
 				)
@@ -80,8 +88,8 @@ func newPaymentsListCommand(service payment.IPaymentService) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&status, "status", "-s", "", "Filter payments by status")
-	cmd.Flags().StringVarP(&reference, "reference", "-ref", "", "Filter payments by reference")
+	cmd.Flags().StringVarP(&status, "status", "s", "", "Filter payments by status")
+	cmd.Flags().StringVarP(&reference, "reference", "r", "", "Filter payments by reference")
 
 	return cmd
 }

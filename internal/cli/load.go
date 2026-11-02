@@ -74,7 +74,7 @@ func NewLoadCommand(
 				Webhook:  webhookBytes,
 			}
 
-			if err := pdService.Create(cmd.Context(), &providerDefinition); err != nil {
+			if err := pdService.SaveActive(cmd.Context(), &providerDefinition); err != nil {
 				return fmt.Errorf("failed to save provider definition: %w", err)
 			}
 

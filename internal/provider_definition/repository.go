@@ -7,6 +7,8 @@ import (
 )
 
 type IProviderDefinitionRepository interface {
+	SaveActive(ctx context.Context, definition *ProviderDefinition) error
+	GetActive(ctx context.Context) (ProviderDefinition, error)
 	Create(ctx context.Context, definition *ProviderDefinition) error
 	Get(ctx context.Context) ([]ProviderDefinition, error)
 	GetByID(ctx context.Context, id int64) (ProviderDefinition, error)
@@ -23,6 +25,21 @@ func NewProviderDefinitionRepository(db *gorm.DB) IProviderDefinitionRepository 
 	return &ProviderDefinitionRepository{
 		db: db,
 	}
+}
+
+func (r *ProviderDefinitionRepository) SaveActive(ctx context.Context, definition *ProviderDefinition) error {
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&ProviderDefinition{}).Error; err != nil {
+			return err
+		}
+		return tx.Create(definition).Error
+	})
+}
+
+func (r *ProviderDefinitionRepository) GetActive(ctx context.Context) (ProviderDefinition, error) {
+	var definition ProviderDefinition
+	err := r.db.WithContext(ctx).First(&definition).Error
+	return definition, err
 }
 
 func (r *ProviderDefinitionRepository) Create(ctx context.Context, definition *ProviderDefinition) error {
