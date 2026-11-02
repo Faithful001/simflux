@@ -1,0 +1,22 @@
+name: stripe-sample
+version: "1.0"
+provider: stripe
+
+payment:
+  fields:
+    transaction_id:
+      type: string
+      required: true
+    amount:
+      type: integer
+      required: true
+
+webhook:
+  url: "http://localhost:8080/webhook"
+  signature:
+    key: "Stripe-Signature"
+    value: "whsec_test_secret_123"
+  events:
+    - payment.success
+    - payment.failed
+

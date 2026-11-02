@@ -4,13 +4,18 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
+	"github.com/Faithful001/simflux.git/internal/event"
 	provider "github.com/Faithful001/simflux.git/internal/provider_definition"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 )
 
-func NewLoadCommand(pdService provider.IProviderDefinitionService) *cobra.Command {
+func NewLoadCommand(
+	pdService provider.IProviderDefinitionService,
+	eventRepo event.IEventRepository,
+) *cobra.Command {
 	var filePath string
 
 	cmd := &cobra.Command{
@@ -71,6 +76,20 @@ func NewLoadCommand(pdService provider.IProviderDefinitionService) *cobra.Comman
 
 			if err := pdService.Create(cmd.Context(), &providerDefinition); err != nil {
 				return fmt.Errorf("failed to save provider definition: %w", err)
+			}
+
+			if eventRepo != nil {
+				for _, eventName := range definition.Webhook.Events {
+					trimmed := strings.TrimSpace(eventName)
+					if trimmed == "" {
+						continue
+					}
+					if _, err := eventRepo.GetByName(cmd.Context(), trimmed); err != nil {
+						if err := eventRepo.Create(cmd.Context(), &event.Event{Name: trimmed}); err != nil {
+							return fmt.Errorf("failed to register event %q: %w", trimmed, err)
+						}
+					}
+				}
 			}
 
 			fmt.Fprintf(
