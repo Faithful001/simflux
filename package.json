@@ -32,6 +32,7 @@
   "files": [
     "bin",
     "scripts",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ]
 }
