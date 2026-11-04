@@ -1,0 +1,38 @@
+{
+  "name": "simflux",
+  "version": "0.1.0",
+  "description": "Local payment provider simulator and webhook dispatcher",
+  "bin": {
+    "simflux": "bin/simflux.js"
+  },
+  "scripts": {
+    "postinstall": "node scripts/install.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Faithful001/simflux.git"
+  },
+  "keywords": [
+    "simflux",
+    "payment",
+    "simulator",
+    "mock",
+    "stripe",
+    "paystack",
+    "webhook",
+    "testing",
+    "cli"
+  ],
+  "author": "Faithful001",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Faithful001/simflux/issues"
+  },
+  "homepage": "https://github.com/Faithful001/simflux#readme",
+  "files": [
+    "bin",
+    "scripts",
+    "README.md"
+  ]
+}
+

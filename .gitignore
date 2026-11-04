@@ -6,6 +6,12 @@
 # Build output
 *.exe
 dist/
+dist-all/
+bin/simflux-bin*
+
+# Node
+node_modules/
+package-lock.json
 
 # Database
 *.db
