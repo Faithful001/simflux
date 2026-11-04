@@ -1,4 +1,4 @@
-# Simflux ⚡
+# Simflux
 
 > A lightweight, local payment provider simulator and webhook dispatcher for developers.
 

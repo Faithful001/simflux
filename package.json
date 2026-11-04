@@ -1,6 +1,6 @@
 {
   "name": "simflux-cli",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Local payment provider simulator and webhook dispatcher",
   "bin": {
     "simflux": "bin/simflux.js"
@@ -35,4 +35,3 @@
     "README.md"
   ]
 }
-
