@@ -83,7 +83,7 @@ func newScenarioCreateCommand(service scenario.IScenarioService) *cobra.Command 
 				return fmt.Errorf("failed to parse scenario definition: %w", err)
 			}
 
-			if err := service.Create(cmd.Context(), s); err != nil {
+			if err := service.Create(cmd.Context(), &s); err != nil {
 				return err
 			}
 
@@ -103,7 +103,7 @@ func newScenarioShowCommand(service scenario.IScenarioService) *cobra.Command {
 		Short: "Show scenario details",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := strconv.Atoi(args[0])
+			id, err := strconv.ParseInt(args[0], 10, 64)
 			if err != nil {
 				return fmt.Errorf("invalid scenario ID: %s", args[0])
 			}
@@ -150,7 +150,7 @@ func newScenarioUpdateCommand(service scenario.IScenarioService) *cobra.Command 
 
 			s.ID = id
 
-			if err := service.Update(cmd.Context(), s); err != nil {
+			if err := service.Update(cmd.Context(), &s); err != nil {
 				return err
 			}
 
@@ -170,7 +170,7 @@ func newScenarioDeleteCommand(service scenario.IScenarioService) *cobra.Command 
 		Short: "Delete a scenario",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := strconv.Atoi(args[0])
+			id, err := strconv.ParseInt(args[0], 10, 64)
 			if err != nil {
 				return fmt.Errorf("invalid scenario ID: %s", args[0])
 			}

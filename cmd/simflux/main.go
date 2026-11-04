@@ -40,7 +40,7 @@ func main() {
 	cmd := cli.NewRootCommand()
 	cmd.AddCommand(
 		cli.NewServeCommand(paymentRepo, providerDefinitionRepo, webhookDispatcher, webhookDelivery),
-		cli.NewLoadCommand(providerDefinitionService, eventRepo),
+		cli.NewLoadCommand(providerDefinitionService, eventRepo, paymentRepo, webhookDispatcher),
 		cli.NewPaymentsCommand(paymentRepo, providerDefinitionRepo, webhookDispatcher, webhookDelivery),
 		cli.NewWebhookCommand(webhookDispatcher, eventRepo),
 		cli.NewScenarioCommand(scenarioRepo),

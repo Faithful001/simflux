@@ -16,6 +16,8 @@ type IPaymentHandler interface {
 	GetByReference(c *gin.Context)
 	GetStatusByReference(c *gin.Context)
 	GetByStatus(c *gin.Context)
+	Update(c *gin.Context)
+	Delete(c *gin.Context)
 }
 
 type PaymentHandler struct {
@@ -148,4 +150,44 @@ func (h *PaymentHandler) GetByStatus(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, payments)
+}
+
+func (h *PaymentHandler) Update(c *gin.Context) {
+	var req dto.UpdatePaymentRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if req.Reference == "" {
+		req.Reference = c.Param("reference")
+	}
+
+	if req.Reference == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Reference is required"})
+		return
+	}
+
+	if err := h.service.Update(c.Request.Context(), req); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Payment updated successfully"})
+}
+
+func (h *PaymentHandler) Delete(c *gin.Context) {
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid payment ID"})
+		return
+	}
+
+	if err := h.service.Delete(c.Request.Context(), id); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Payment deleted successfully"})
 }

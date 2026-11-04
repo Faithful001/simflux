@@ -28,7 +28,9 @@ func SetupRouter(
 		paymentRoutes.GET("", paymentHandler.Get)
 		paymentRoutes.GET("/:id", paymentHandler.GetByID)
 		paymentRoutes.GET("/:id/status", paymentHandler.GetStatusByID)
+		paymentRoutes.DELETE("/:id", paymentHandler.Delete)
 		paymentRoutes.GET("/reference/:reference", paymentHandler.GetByReference)
 		paymentRoutes.GET("/reference/:reference/status", paymentHandler.GetStatusByReference)
+		paymentRoutes.PATCH("/reference/:reference", paymentHandler.Update)
 	}
 }

@@ -117,6 +117,8 @@ func (s *PaymentService) Create(
 				result.HeaderVal,
 			); err != nil {
 				fmt.Printf("Error delivering webhook: %v\n", err)
+			} else {
+				fmt.Printf("Webhook delivered successfully to %s (event: %s)\n", result.URL, eventName)
 			}
 		}()
 	}

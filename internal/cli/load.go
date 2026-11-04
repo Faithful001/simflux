@@ -8,7 +8,9 @@ import (
 	"strings"
 
 	"github.com/Faithful001/simflux.git/internal/event"
+	"github.com/Faithful001/simflux.git/internal/payment"
 	provider "github.com/Faithful001/simflux.git/internal/provider_definition"
+	"github.com/Faithful001/simflux.git/internal/webhook"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 	"gorm.io/gorm"
@@ -17,8 +19,11 @@ import (
 func NewLoadCommand(
 	pdService provider.IProviderDefinitionService,
 	eventRepo event.IEventRepository,
+	paymentRepo payment.IPaymentRepository,
+	webhookDispatcher webhook.IWebhookDispatcher,
 ) *cobra.Command {
 	var filePath string
+	var reset bool
 
 	cmd := &cobra.Command{
 		Use:   "load",
@@ -80,6 +85,17 @@ func NewLoadCommand(
 				return fmt.Errorf("failed to save provider definition: %w", err)
 			}
 
+			// Persist the webhook configuration for immediate dispatching
+			if webhookDispatcher != nil && definition.Webhook.URL != "" {
+				if err := webhookDispatcher.SaveWebhookConfig(
+					definition.Webhook.URL,
+					definition.Webhook.Signature.Key,
+					definition.Webhook.Signature.Value,
+				); err != nil {
+					return fmt.Errorf("failed to save webhook configuration: %w", err)
+				}
+			}
+
 			if eventRepo != nil {
 				for _, eventName := range definition.Webhook.Events {
 					trimmed := strings.TrimSpace(eventName)
@@ -94,6 +110,19 @@ func NewLoadCommand(
 							return fmt.Errorf("failed to register event %q: %w", trimmed, err)
 						}
 					}
+				}
+			}
+
+			if reset {
+				if paymentRepo != nil {
+					if err := paymentRepo.Clear(cmd.Context()); err != nil {
+						return fmt.Errorf("failed to reset payments: %w", err)
+					}
+					fmt.Fprintln(cmd.OutOrStdout(), "Reset: all simulated payments cleared.")
+				}
+				if webhookDispatcher != nil {
+					_ = webhookDispatcher.ResetActiveEvent()
+					fmt.Fprintln(cmd.OutOrStdout(), "Reset: webhook active event override cleared.")
 				}
 			}
 
@@ -114,6 +143,14 @@ func NewLoadCommand(
 		"f",
 		"",
 		"Path to the Simflux definition YAML file",
+	)
+
+	cmd.Flags().BoolVarP(
+		&reset,
+		"reset",
+		"r",
+		false,
+		"Clear all existing payments and active webhook overrides when loading",
 	)
 
 	return cmd
