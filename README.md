@@ -357,7 +357,7 @@ When `simflux serve` is running, your application interacts with the following e
 
 ---
 
-## 🧪 Automated Testing & Integration
+## Automated Testing & Integration
 
 Simflux is designed to run in your integration test pipelines.
 
