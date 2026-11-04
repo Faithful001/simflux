@@ -16,19 +16,9 @@ type WebhookConfigResult struct {
 
 type IWebhookDispatcher interface {
 	GetWebhookConfig() (WebhookConfigResult, error)
-
-	// SaveWebhookConfig persists the active webhook configuration (URL and signature headers).
 	SaveWebhookConfig(url, headerKey, headerVal string) error
-
-	// SetActiveEvent persists an event name override. Any subsequent webhook
-	// delivery will use this event instead of the provider definition default.
 	SetActiveEvent(eventName string) error
-
-	// GetActiveEvent returns the persisted event override, or ("", nil) when
-	// no override is set.
 	GetActiveEvent() (string, error)
-
-	// ResetActiveEvent clears the event override so the default is used.
 	ResetActiveEvent() error
 }
 
