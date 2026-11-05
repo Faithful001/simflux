@@ -19,6 +19,7 @@
 - [Why Simflux?](#-why-simflux)
 - [Installation](#-installation)
 - [How It Works](#-how-it-works)
+- [Web Visualizer & Analytics Dashboard](#-web-visualizer--analytics-dashboard)
 - [Configuration Guide (`simflux.yaml`)](#-configuration-guide-simfluxyaml)
 - [CLI Reference](#-cli-reference)
   - [`simflux load`](#simflux-load)
@@ -27,6 +28,8 @@
   - [`simflux payments`](#simflux-payments)
   - [`simflux scenario`](#simflux-scenario)
 - [HTTP API Reference](#-http-api-reference)
+  - [Payment Endpoints](#payment-endpoints)
+  - [Control & Analytics Endpoints (`/_simflux/`)](#control--analytics-endpoints-_simflux)
 - [Automated Testing & Integration](#-automated-testing--integration)
 - [License](#-license)
 
@@ -107,7 +110,30 @@ go build -o simflux.exe ./cmd/simflux
 2. **Load your configuration** with `simflux load`.
 3. **Start the local server** with `simflux serve`.
 4. Your application calls `http://localhost:8080/payments`.
-5. Simflux validates the payload, stores the payment, and immediately dispatches the simulated webhook to your configured webhook URL with signatures attached.
+5. Simflux validates the payload, stores the payment, logs delivery telemetry, and immediately dispatches the simulated webhook to your configured webhook URL with signatures attached.
+
+---
+
+## 🖥️ Web Visualizer & Analytics Dashboard
+
+Simflux includes a built-in, zero-dependency, dark-themed visual dashboard embedded directly in the server binary.
+
+Access it in any browser when `simflux serve` is running:
+
+👉 **`http://localhost:8080/ui`**
+
+### Features:
+- **Interactive Controls**:
+  - Switch active webhook events from a dropdown and apply them instantly without restarting the server.
+  - Reset payment history and active overrides with a single click.
+- **Real-Time Analytics & Charts**:
+  - **Payments by Status Bar Chart**: Visual distribution breakdown of recorded transactions (`success`, `pending`, `failed`, etc.).
+  - **Delivery Health Gauge**: Webhook success rate percentage with color-coded status indication.
+  - **Latency Metrics**: Mean round-trip latency (`ms`) across webhook executions.
+- **Live Telemetry & Logs**:
+  - **Recent Webhook Deliveries Table**: Real-time attempt logs showing timestamps, target URLs, HTTP response codes, execution times, and payload delivery error messages.
+  - **Recent Payments Table**: Inspection list of simulated transactions.
+  - **Auto-Refresh**: Live polling every 5 seconds.
 
 ---
 
@@ -354,6 +380,21 @@ When `simflux serve` is running, your application interacts with the following e
   "message": "Payment deleted successfully"
 }
 ```
+
+---
+
+### Control & Analytics Endpoints (`/_simflux/`)
+
+Simflux exposes control and telemetry endpoints used by the Visualizer or automated test harnesses:
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/_simflux/state` | Returns the active simulated event, webhook target, and registered events |
+| `POST` | `/_simflux/webhook/event` | Sets active event override (Body: `{"event": "payment.success"}`) |
+| `DELETE` | `/_simflux/webhook/event` | Clears active event override |
+| `POST` | `/_simflux/reset` | Purges all simulated payment records |
+| `GET` | `/_simflux/analytics` | Returns aggregated metrics, status breakdowns, and recent delivery logs |
+| `GET` | `/ui` | Serves the embedded HTML/JS visualizer dashboard |
 
 ---
 

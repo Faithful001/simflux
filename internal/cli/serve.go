@@ -10,6 +10,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Faithful001/simflux.git/internal/delivery_log"
+	"github.com/Faithful001/simflux.git/internal/event"
 	"github.com/Faithful001/simflux.git/internal/payment"
 	"github.com/Faithful001/simflux.git/internal/provider_definition"
 	"github.com/Faithful001/simflux.git/internal/router"
@@ -23,6 +25,8 @@ func NewServeCommand(
 	providerDefinitionRepo provider_definition.IProviderDefinitionRepository,
 	webhookDispatcher webhook.IWebhookDispatcher,
 	webhookDelivery webhook.IWebhookDelivery,
+	eventRepo event.IEventRepository,
+	deliveryLog delivery_log.IDeliveryLogRepository,
 ) *cobra.Command {
 	var port int
 
@@ -40,6 +44,8 @@ func NewServeCommand(
 				providerDefinitionRepo,
 				webhookDispatcher,
 				webhookDelivery,
+				eventRepo,
+				deliveryLog,
 			)
 
 			addr := fmt.Sprintf(":%d", port)
@@ -65,6 +71,7 @@ func NewServeCommand(
 			}()
 
 			fmt.Fprintf(cmd.OutOrStdout(), "Simflux server listening on :%d\n", port)
+			fmt.Fprintf(cmd.OutOrStdout(), "Dashboard:  http://localhost:%d/ui\n", port)
 
 			if err := srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 				return err

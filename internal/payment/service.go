@@ -115,6 +115,8 @@ func (s *PaymentService) Create(
 				payload,
 				result.HeaderKey,
 				result.HeaderVal,
+				req.Reference,
+				eventName,
 			); err != nil {
 				fmt.Printf("Error delivering webhook: %v\n", err)
 			} else {
